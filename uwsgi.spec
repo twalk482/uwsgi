@@ -1,7 +1,7 @@
-%define wikiversion 36
+%define wikiversion 41
 
 Name:           uwsgi
-Version:        1.0.4
+Version:        1.2.3
 Release:        1%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
@@ -9,13 +9,15 @@ License:        GPLv2
 URL:            http://projects.unbit.it/uwsgi
 Source0:        http://projects.unbit.it/downloads/%{name}-%{version}.tar.gz
 Source1:        fedora.ini
-# wikiversion=36; curl -o uwsgi-wiki-doc-v${wikiversion}.txt "http://projects.unbit.it/uwsgi/wiki/Doc?version=${wikiversion}&format=txt"
+# curl -o uwsgi-wiki-doc-v${wikiversion}.txt "http://projects.unbit.it/uwsgi/wiki/Doc?version=${wikiversion}&format=txt"
 Source2:        uwsgi-wiki-doc-v%{wikiversion}.txt
-Patch0:         uwsgi_fix_rpath.patch
-Patch1:         uwsgi_trick_chroot_rpmbuild.patch
+Patch0:         uwsgi_trick_chroot_rpmbuild.patch
+Patch1:         uwsgi_fix_rpath.patch
 BuildRequires:  curl,  python2-devel, libxml2-devel, libuuid-devel, jansson-devel
 BuildRequires:  libyaml-devel, perl-devel, ruby-devel, perl-ExtUtils-Embed
-BuildRequires:  python3-devel, python-greenlet-devel, lua-devel, ruby
+BuildRequires:  python3-devel, python-greenlet-devel, lua-devel, ruby, pcre-devel
+BuildRequires:  php-devel, php-embedded, libedit-devel, openssl-devel
+BuildRequires:  bzip2-devel, gmp-devel, systemd-units
 
 %description
 uWSGI is a fast (pure C), self-healing, developer/sysadmin-friendly
@@ -129,6 +131,46 @@ Requires: lua, %{name}-plugin-common
 %description -n %{name}-plugin-lua
 This package contains the lua plugin for uWSGI
 
+%package -n %{name}-plugin-php
+Summary:  uWSGI - Plugin for PHP support
+Group:    System Environment/Daemons
+Requires: php, %{name}-plugin-common
+
+%description -n %{name}-plugin-php
+This package contains the PHP plugin for uWSGI
+
+%package -n %{name}-plugin-carbon
+Summary:  uWSGI - Plugin for Carbon/Graphite support
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common
+
+%description -n %{name}-plugin-carbon
+This package contains the Carbon plugin for uWSGI (to use in graphite)
+
+%package -n %{name}-plugin-rrdtool
+Summary:  uWSGI - Plugin for RRDTool support
+Group:    System Environment/Daemons
+Requires: rrdtool, %{name}-plugin-common
+
+%description -n %{name}-plugin-rrdtool
+This package contains the RRD Tool plugin for uWSGI
+
+%package -n %{name}-plugin-rsyslog
+Summary:  uWSGI - Plugin for rsyslog support
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common
+
+%description -n %{name}-plugin-rsyslog
+This package contains the rsyslog plugin for uWSGI
+
+%package -n %{name}-plugin-syslog
+Summary:  uWSGI - Plugin for syslog support
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common
+
+%description -n %{name}-plugin-syslog
+This package contains the syslog plugin for uWSGI
+
 %prep
 %setup -q
 cp -p %{SOURCE1} buildconf/
@@ -140,6 +182,7 @@ echo "plugin_dir = %{_libdir}/%{name}" >> buildconf/$(basename %{SOURCE1})
 
 %build
 CFLAGS="%{optflags} -Wno-unused-but-set-variable" python uwsgiconfig.py --build fedora.ini
+CFLAGS="%{optflags} -Wno-unused-but-set-variable" python3 uwsgiconfig.py --plugin plugins/python fedora python32
 
 %install
 mkdir -p %{buildroot}%{_sbindir}
@@ -195,8 +238,32 @@ mkdir -p %{buildroot}%{_libdir}/%{name}
 %files -n %{name}-plugin-lua
 %{_libdir}/%{name}/lua_plugin.so
 
+%files -n %{name}-plugin-php
+%{_libdir}/%{name}/php_plugin.so
+
+%files -n %{name}-plugin-carbon
+%{_libdir}/%{name}/carbon_plugin.so
+
+%files -n %{name}-plugin-rrdtool
+%{_libdir}/%{name}/rrdtool_plugin.so
+
+%files -n %{name}-plugin-rsyslog
+%{_libdir}/%{name}/rsyslog_plugin.so
+
+%files -n %{name}-plugin-syslog
+%{_libdir}/%{name}/syslog_plugin.so
+
 
 %changelog
+* Tue Jun 26 2012 Jorge A Gallegos <kad@blegh.net> - 1.2.3-1
+- Updated to latest stable upstream
+- Building the pytho3 plugin is a bit trickier now, but still possible
+- Added PHP plugin
+- Added Carbon plugin
+- Added RRDTool plugin
+- Added rsyslog plugin
+- Added syslog plugin
+
 * Sun Feb 19 2012 Jorge A Gallegos <kad@blegh.net> - 1.0.4-1
 - Addressing issues from package review feedback
 - s/python-devel/python2-devel
