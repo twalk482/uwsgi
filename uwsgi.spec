@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.4
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -255,6 +255,9 @@ mkdir -p %{buildroot}%{_libdir}/%{name}
 
 
 %changelog
+* Sun Jul 22 2012 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.4-2
+- Rebuilt for https://fedoraproject.org/wiki/Fedora_18_Mass_Rebuild
+
 * Sun Jul 08 2012 Jorge A Gallegos <kad@blegh.net> - 1.2.4-1
 - Updated to latest stable from upstream
 
