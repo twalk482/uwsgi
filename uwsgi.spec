@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.4
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -11,6 +11,8 @@ Source0:        http://projects.unbit.it/downloads/%{name}-%{version}.tar.gz
 Source1:        fedora.ini
 # curl -o uwsgi-wiki-doc-v${wikiversion}.txt "http://projects.unbit.it/uwsgi/wiki/Doc?version=${wikiversion}&format=txt"
 Source2:        uwsgi-wiki-doc-v%{wikiversion}.txt
+Source3:        uwsgi.service
+Source4:        emperor.ini
 Patch0:         uwsgi_trick_chroot_rpmbuild.patch
 Patch1:         uwsgi_fix_rpath.patch
 BuildRequires:  curl,  python2-devel, libxml2-devel, libuuid-devel, jansson-devel
@@ -18,6 +20,11 @@ BuildRequires:  libyaml-devel, perl-devel, ruby-devel, perl-ExtUtils-Embed
 BuildRequires:  python3-devel, python-greenlet-devel, lua-devel, ruby, pcre-devel
 BuildRequires:  php-devel, php-embedded, libedit-devel, openssl-devel
 BuildRequires:  bzip2-devel, gmp-devel, systemd-units
+
+Requires(pre):    shadow-utils
+Requires(post):   systemd-units
+Requires(preun):  systemd-units
+Requires(postun): systemd-units
 
 %description
 uWSGI is a fast (pure C), self-healing, developer/sysadmin-friendly
@@ -175,6 +182,8 @@ This package contains the syslog plugin for uWSGI
 %setup -q
 cp -p %{SOURCE1} buildconf/
 cp -p %{SOURCE2} uwsgi-wiki-doc-v%{wikiversion}.txt
+cp -p %{SOURCE3} %{name}.service
+cp -p %{SOURCE4} %{name}.ini
 sed -i 's/\r//' uwsgi-wiki-doc-v%{wikiversion}.txt
 echo "plugin_dir = %{_libdir}/%{name}" >> buildconf/$(basename %{SOURCE1})
 %patch0 -p1
@@ -185,16 +194,53 @@ CFLAGS="%{optflags} -Wno-unused-but-set-variable" python uwsgiconfig.py --build 
 CFLAGS="%{optflags} -Wno-unused-but-set-variable" python3 uwsgiconfig.py --plugin plugins/python fedora python32
 
 %install
+mkdir -p %{buildroot}%{_sysconfdir}/%{name}.d
+mkdir -p %{buildroot}%{_unitdir}
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_includedir}/%{name}
 mkdir -p %{buildroot}%{_libdir}/%{name}
-%{__install} -p -m 0755 uwsgi %{buildroot}%{_sbindir}
+mkdir -p %{buildroot}/run/%{name}
+%{__install} -p -m 0755 %{name} %{buildroot}%{_sbindir}
 %{__install} -p -m 0644 *.h %{buildroot}%{_includedir}/%{name}
 %{__install} -p -m 0755 *_plugin.so %{buildroot}%{_libdir}/%{name}
+%{__install} -p -m 0644 %{name}.ini %{buildroot}%{_sysconfdir}/%{name}.ini
+%{__install} -p -m 0644 %{name}.service %{buildroot}%{_unitdir}/%{name}.service
+
+
+%pre
+getent group uwsgi >/dev/null || groupadd -r uwsgi
+getent passwd uwsgi >/dev/null || \
+    useradd -r -g uwsgi -d /run/uwsgi -s /sbin/nologin \
+    -c "uWSGI daemon user" uwsgi
+exit 0
+
+%post
+if [ $1 -eq 1 ] ; then 
+    # Initial installation 
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+fi
+
+%preun
+if [ $1 -eq 0 ] ; then
+    # Package removal, not upgrade
+    /bin/systemctl --no-reload disable uwsgi.service > /dev/null 2>&1 || :
+    /bin/systemctl stop uwsgi.service > /dev/null 2>&1 || :
+fi
+
+%postun
+/bin/systemctl daemon-reload >/dev/null 2>&1 || :
+if [ $1 -ge 1 ] ; then
+    # Package upgrade, not uninstall
+    /bin/systemctl try-restart uwsgi.service >/dev/null 2>&1 || :
+fi
 
 
 %files 
 %{_sbindir}/%{name}
+%{_sysconfdir}/%{name}.ini
+%{_unitdir}/%{name}.service
+%dir %{_sysconfdir}/%{name}.d
+%dir /run/%{name}
 %doc ChangeLog LICENSE README
 %doc uwsgi-wiki-doc-v%{wikiversion}.txt
 
