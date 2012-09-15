@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -215,24 +215,36 @@ getent passwd uwsgi >/dev/null || \
 exit 0
 
 %post
-if [ $1 -eq 1 ] ; then 
-    # Initial installation 
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-fi
+%if 0%{?systemd_post:1}
+    %systemd_post uwsgi.service
+%else
+    if [ $1 -eq 1 ] ; then 
+        # Initial installation 
+        /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    fi
+%endif
 
 %preun
-if [ $1 -eq 0 ] ; then
-    # Package removal, not upgrade
-    /bin/systemctl --no-reload disable uwsgi.service > /dev/null 2>&1 || :
-    /bin/systemctl stop uwsgi.service > /dev/null 2>&1 || :
-fi
+%if 0%{?systemd_preun:1}
+    %systemd_preun uwsgi.service
+%else
+    if [ $1 -eq 0 ] ; then
+        # Package removal, not upgrade
+        /bin/systemctl --no-reload disable uwsgi.service > /dev/null 2>&1 || :
+        /bin/systemctl stop uwsgi.service > /dev/null 2>&1 || :
+    fi
+%endif
 
 %postun
-/bin/systemctl daemon-reload >/dev/null 2>&1 || :
-if [ $1 -ge 1 ] ; then
-    # Package upgrade, not uninstall
-    /bin/systemctl try-restart uwsgi.service >/dev/null 2>&1 || :
-fi
+%if 0%{?systemd_postun:1}
+    %systemd_postun uwsgi.service
+%else
+    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
+    if [ $1 -ge 1 ] ; then
+        # Package upgrade, not uninstall
+        /bin/systemctl try-restart uwsgi.service >/dev/null 2>&1 || :
+    fi
+%endif
 
 
 %files 
@@ -301,6 +313,9 @@ fi
 
 
 %changelog
+* Sat Sep 15 2012 Jorge A Gallegos <kad@blegh.net> - 1.2.6-2
+- Rebuilt with new systemd macros
+
 * Sun Sep 09 2012 Jorge A Gallegos <kad@blegh.net> - 1.2.6-1
 - Updated to latest stable from upstream
 
