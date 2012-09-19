@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -141,7 +141,7 @@ This package contains the lua plugin for uWSGI
 %package -n %{name}-plugin-php
 Summary:  uWSGI - Plugin for PHP support
 Group:    System Environment/Daemons
-Requires: php, %{name}-plugin-common
+Requires: %{name}-plugin-common
 
 %description -n %{name}-plugin-php
 This package contains the PHP plugin for uWSGI
@@ -313,6 +313,9 @@ exit 0
 
 
 %changelog
+* Wed Sep 19 2012 Jorge A Gallegos <kad@blegh.net> - 1.2.6-3
+- Dropped requirement on PHP for the PHP plugin
+
 * Sat Sep 15 2012 Jorge A Gallegos <kad@blegh.net> - 1.2.6-2
 - Rebuilt with new systemd macros
 
