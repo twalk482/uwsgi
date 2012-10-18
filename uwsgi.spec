@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        3%{?dist}
+Release:        4%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -313,6 +313,9 @@ exit 0
 
 
 %changelog
+* Thu Oct 18 2012 Remi Collet <remi@fedoraproject.org> - 1.2.6-4
+- rebuild for new PHP 5.4.8
+
 * Wed Sep 19 2012 Jorge A Gallegos <kad@blegh.net> - 1.2.6-3
 - Dropped requirement on PHP for the PHP plugin
 
