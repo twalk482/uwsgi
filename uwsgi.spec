@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        4%{?dist}
+Release:        5%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -313,6 +313,9 @@ exit 0
 
 
 %changelog
+* Fri Nov  9 2012 Remi Collet <rcollet@redhat.com> - 1.2.6-5
+- rebuild against new php embedded library soname (5.4)
+
 * Thu Oct 18 2012 Remi Collet <remi@fedoraproject.org> - 1.2.6-4
 - rebuild for new PHP 5.4.8
 
