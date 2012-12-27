@@ -5,7 +5,8 @@ After=syslog.target
 [Service]
 ExecStartPre=/bin/mkdir -p /run/uwsgi
 ExecStartPre=/bin/chown uwsgi:uwsgi /run/uwsgi
-ExecStart=/usr/sbin/uwsgi --ini /etc/uwsgi.ini; [ $? -eq 30 ]
+ExecStart=/usr/sbin/uwsgi --ini /etc/uwsgi.ini
+SuccessExitStatus=30
 ExecReload=/bin/kill -HUP $MAINPID
 KillSignal=SIGINT
 Restart=always

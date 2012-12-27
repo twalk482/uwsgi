@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        5%{?dist}
+Release:        6%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -313,6 +313,9 @@ exit 0
 
 
 %changelog
+* Thu Dec 27 2012 Jorge A Gallegos <kad@blegh.net> - 1.2.6-6
+- Systemd now supports an exit status directive, fixing bugz 873382
+
 * Fri Nov  9 2012 Remi Collet <rcollet@redhat.com> - 1.2.6-5
 - rebuild against new php embedded library soname (5.4)
 
