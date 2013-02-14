@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        6%{?dist}
+Release:        7%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -313,6 +313,9 @@ exit 0
 
 
 %changelog
+* Thu Feb 14 2013 Jorge A Gallegos <kad@blegh.net> - 1.2.6-7
+- Tyrant mode shouldn't be used here, tyrant mode is root-only
+
 * Thu Dec 27 2012 Jorge A Gallegos <kad@blegh.net> - 1.2.6-6
 - Systemd now supports an exit status directive, fixing bugz 873382
 
