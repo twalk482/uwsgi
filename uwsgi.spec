@@ -6,7 +6,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        12%{?dist}
+Release:        13%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -17,6 +17,7 @@ Source1:        fedora.ini.in
 Source2:        uwsgi-wiki-doc-v%{wikiversion}.txt
 Source3:        uwsgi.service
 Source4:        emperor.ini
+Source5:        uwsgi.conf
 Patch0:         uwsgi_trick_chroot_rpmbuild.patch
 Patch1:         uwsgi_fix_rpath.patch
 Patch2:         uwsgi_fix_jwsgi_include_lib_paths.patch
@@ -26,7 +27,7 @@ BuildRequires:  python3-devel, python-greenlet-devel, lua-devel, ruby, pcre-deve
 BuildRequires:  php-devel, php-embedded, libedit-devel, openssl-devel
 BuildRequires:  bzip2-devel, gmp-devel, systemd-units, libcap-devel, erlang
 BuildRequires:  java-devel, pam-devel, postgresql-devel, zeromq-devel
-BuildRequires:  sqlite-devel, openldap-devel
+BuildRequires:  sqlite-devel, openldap-devel, httpd-devel
 
 Requires(pre):    shadow-utils
 Requires(post):   systemd-units
@@ -285,6 +286,21 @@ Requires: %{name}-plugin-common = %{version}-%{release}
 %description plugin-redislog
 This package contains the Redis plugin for uWSGI
 
+%package -n mod_uwsgi
+Summary:  uWSGI - Apache module
+Group:    System Environment/Libraries
+Requires: httpd >= 2.4, %{name} = %{version}-%{release}
+
+%description -n mod_uwsgi
+This package contains the uWSGI Apache module
+
+# prevent auto-generated requires and provides for Apache modules, see
+# https://fedoraproject.org/wiki/Packaging:AutoProvidesAndRequiresFiltering
+%{?filter_setup:
+%filter_provides_in %{_libdir}/httpd/modules/.*\.so$
+%filter_setup
+}
+
 %prep
 %setup -q
 cp -p %{SOURCE1} buildconf/fedora.ini
@@ -324,6 +340,9 @@ export UWSGICONFIG_JVM_LIBPATH="$(dirname %{_jvmdir}/java/jre/lib/*/server/libjv
 export CFLAGS="%{optflags} -Wno-unused-but-set-variable"
 python uwsgiconfig.py --build fedora.ini
 python3 uwsgiconfig.py --plugin plugins/python fedora python32
+pushd apache2
+apxs -c mod_uwsgi.c
+popd
 
 %install
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}.d
@@ -336,6 +355,8 @@ mkdir -p %{buildroot}/run/%{name}
 %{__install} -D -p -m 0644 uwsgidecorators.py %{buildroot}%{python_sitelib}/uwsgidecorators.py
 %{__install} -p -m 0644 *.h %{buildroot}%{_includedir}/%{name}
 %{__install} -p -m 0755 *_plugin.so %{buildroot}%{_libdir}/%{name}
+%{__install} -D -p -m 0755 apache2/.libs/mod_uwsgi.so %{buildroot}%{_libdir}/httpd/modules/mod_uwsgi.so
+%{__install} -D -p -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/httpd/conf.d/10-uwsgi.conf
 %{__install} -p -m 0644 %{name}.ini %{buildroot}%{_sysconfdir}/%{name}.ini
 %{__install} -p -m 0644 %{name}.service %{buildroot}%{_unitdir}/%{name}.service
 
@@ -490,7 +511,14 @@ exit 0
 %files plugin-redislog
 %{_libdir}/%{name}/redislog_plugin.so
  
+%files -n mod_uwsgi
+%{_sysconfdir}/httpd/conf.d/10-uwsgi.conf
+%{_libdir}/httpd/modules/mod_uwsgi.so
+
 %changelog
+* Mon Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.2.6-13
+- Build mod_uwsgi
+
 * Mon Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.2.6-12
 - Build all plugins all available plugins except those for which we lack all
   necessary dependencies or which are unusable or examples
