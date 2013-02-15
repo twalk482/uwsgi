@@ -1,0 +1,24 @@
+Index: uwsgi-1.4.5/plugins/emperor_mongodb/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.4.5.orig/plugins/emperor_mongodb/uwsgiplugin.py
++++ uwsgi-1.4.5/plugins/emperor_mongodb/uwsgiplugin.py
+@@ -2,6 +2,6 @@ NAME='emperor_mongodb'
+ 
+ CFLAGS = ['-I/usr/include/mongo','-I/usr/local/include/mongo']
+ LDFLAGS = []
+-LIBS = ['-lmongoclient', '-lboost_thread','-lboost_filesystem']
++LIBS = ['-lmongoclient', '-lboost_thread-mt','-lboost_filesystem']
+ 
+ GCC_LIST = ['plugin', 'emperor_mongodb.cc']
+Index: uwsgi-1.4.5/plugins/stats_pusher_mongodb/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.4.5.orig/plugins/stats_pusher_mongodb/uwsgiplugin.py
++++ uwsgi-1.4.5/plugins/stats_pusher_mongodb/uwsgiplugin.py
+@@ -2,6 +2,6 @@ NAME='stats_pusher_mongodb'
+ 
+ CFLAGS = ['-I/usr/include/mongo','-I/usr/local/include/mongo']
+ LDFLAGS = []
+-LIBS = ['-lmongoclient', '-lboost_thread','-lboost_filesystem']
++LIBS = ['-lmongoclient', '-lboost_thread-mt','-lboost_filesystem']
+ 
+ GCC_LIST = ['plugin', 'stats_pusher_mongodb.cc']

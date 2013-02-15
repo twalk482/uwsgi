@@ -1,33 +1,36 @@
-%define wikiversion 43
+# revision of the uwsgi documentation corresponding to the packaged release
+%global uwsgi_docs_rev 266643bffc2bee1461d3b5848a292b13b9ea998a
 # exclude plugins for which we lack all necessary dependencies, which are
 # unusable or just meant as examples
-%global blacklist_plugins  example mono pypy stackless cheaper_backlog2 cplusplus pyuwsgi
-%global embed_plugins      echo ping http
+%global blacklist_plugins  example mono pypy stackless cheaper_backlog2 cplusplus pyuwsgi alarm_speech go
+%global embed_plugins      echo ping corerouter http
 
 Name:           uwsgi
-Version:        1.2.6
-Release:        13%{?dist}
+Version:        1.4.5
+Release:        1%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
 URL:            http://projects.unbit.it/uwsgi
 Source0:        http://projects.unbit.it/downloads/%{name}-%{version}.tar.gz
 Source1:        fedora.ini.in
-# curl -o uwsgi-wiki-doc-v${wikiversion}.txt "http://projects.unbit.it/uwsgi/wiki/Doc?version=${wikiversion}&format=txt"
-Source2:        uwsgi-wiki-doc-v%{wikiversion}.txt
+Source2:        https://github.com/unbit/uwsgi-docs/archive/%{uwsgi_docs_rev}.zip
 Source3:        uwsgi.service
 Source4:        emperor.ini
 Source5:        uwsgi.conf
 Patch0:         uwsgi_trick_chroot_rpmbuild.patch
 Patch1:         uwsgi_fix_rpath.patch
 Patch2:         uwsgi_fix_jwsgi_include_lib_paths.patch
+Patch3:         uwsgi_fix_boost_thread.patch
 BuildRequires:  curl,  python2-devel, libxml2-devel, libuuid-devel, jansson-devel
 BuildRequires:  libyaml-devel, perl-devel, ruby-devel, perl-ExtUtils-Embed
 BuildRequires:  python3-devel, python-greenlet-devel, lua-devel, ruby, pcre-devel
 BuildRequires:  php-devel, php-embedded, libedit-devel, openssl-devel
 BuildRequires:  bzip2-devel, gmp-devel, systemd-units, libcap-devel, erlang
 BuildRequires:  java-devel, pam-devel, postgresql-devel, zeromq-devel
-BuildRequires:  sqlite-devel, openldap-devel, httpd-devel
+BuildRequires:  sqlite-devel, openldap-devel, httpd-devel, libcurl-devel
+BuildRequires:  gloox-devel, mongodb-devel, libmongo-client-devel, boost-devel
+BuildRequires:  tcp_wrappers-devel, systemd-devel, python-sphinx
 
 Requires(pre):    shadow-utils
 Requires(post):   systemd-units
@@ -71,6 +74,15 @@ access to the uWSGI API
 Summary:  uWSGI - Common plugins for uWSGI
 Group:    System Environment/Daemons
 Requires: %{name} = %{version}-%{release}
+
+%package -n %{name}-doc
+Summary:  uWSGI - Documentation
+Group:    Documentation
+Requires: %{name} = %{version}-%{release}
+BuildArch: noarch
+
+%description -n %{name}-doc
+This package contains the documentation for uWSGI
 
 %description plugin-common
 This package contains the most common plugins used with uWSGI. The
@@ -286,6 +298,62 @@ Requires: %{name}-plugin-common = %{version}-%{release}
 %description plugin-redislog
 This package contains the Redis plugin for uWSGI
 
+%package -n %{name}-plugin-alarm-curl
+Summary:  uWSGI - Plugin for passing alarm messages via curl URLs
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common = %{version}-%{release}
+
+%description -n %{name}-plugin-alarm-curl
+This package contains the alarm_curl plugin for uWSGI
+
+%package -n %{name}-plugin-alarm-xmpp
+Summary:  uWSGI - Plugin for passing alarm messages via XMPP
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common = %{version}-%{release}
+
+%description -n %{name}-plugin-alarm-xmpp
+This package contains the alarm_xmpp plugin for uWSGI
+
+%package -n %{name}-plugin-emperor-mongodb
+Summary:  uWSGI - Plugin for reading emperor configurations from MongoDB
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common = %{version}-%{release}
+
+%description -n %{name}-plugin-emperor-mongodb
+This package contains the emperor_mongodb plugin
+
+%package -n %{name}-plugin-emperor-pg
+Summary:  uWSGI - Plugin for reading emperor configurations from PostgreSQL
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common = %{version}-%{release}
+
+%description -n %{name}-plugin-emperor-pg
+This package contains the emperor_pg plugin
+
+%package -n %{name}-plugin-emperor-amqp
+Summary:  uWSGI - Plugin for reading emperor configuration locations from AMQP
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common = %{version}-%{release}
+
+%description -n %{name}-plugin-emperor-amqp
+This package contains the emperor_amqp plugin
+
+%package -n %{name}-plugin-mongodblog
+Summary:  uWSGI - Plugin for logging to MongoDB
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common = %{version}-%{release}
+
+%description -n %{name}-plugin-mongodblog
+This package contains the mongodblog plugin
+
+%package -n %{name}-plugin-stats-pusher-mongodb
+Summary:  uWSGI - Plugin for push statistics to MongoDB
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common = %{version}-%{release}
+
+%description -n %{name}-plugin-stats-pusher-mongodb
+This package contains the stats_pusher_mongodb plugin
+
 %package -n mod_uwsgi
 Summary:  uWSGI - Apache module
 Group:    System Environment/Libraries
@@ -302,7 +370,7 @@ This package contains the uWSGI Apache module
 }
 
 %prep
-%setup -q
+%setup -q -a2
 cp -p %{SOURCE1} buildconf/fedora.ini
 ls -1 plugins | \
     awk '
@@ -326,23 +394,32 @@ END {
     print "plugin_dir = %{_libdir}/%{name}"
 }
 ' >> buildconf/fedora.ini
-cp -p %{SOURCE2} uwsgi-wiki-doc-v%{wikiversion}.txt
 cp -p %{SOURCE3} %{name}.service
 cp -p %{SOURCE4} %{name}.ini
-sed -i 's/\r//' uwsgi-wiki-doc-v%{wikiversion}.txt
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
+%patch3 -p1
+pushd uwsgi-docs-%{uwsgi_docs_rev}
+# remove empty files
+find . -name '*.rst' -and -size 0 -exec rm {} \+
+popd
 
 %build
 export UWSGICONFIG_JVM_INCPATH="%{_jvmdir}/java/include -I/usr/lib/jvm/java/include/linux"
 export UWSGICONFIG_JVM_LIBPATH="$(dirname %{_jvmdir}/java/jre/lib/*/server/libjvm.so | head -1)"
+export UWSGICONFIG_LUALIB="lua"
+export UWSGICONFIG_LUAINC="%{_includedir}"
+export UWSGICONFIG_LUALIBPATH="%{_libdir}"
 export CFLAGS="%{optflags} -Wno-unused-but-set-variable"
 python uwsgiconfig.py --build fedora.ini
 python3 uwsgiconfig.py --plugin plugins/python fedora python32
 pushd apache2
 apxs -c mod_uwsgi.c
 popd
+mkdir html
+sphinx-build -b html uwsgi-docs-%{uwsgi_docs_rev} html
+rm -rf html/.doctrees html/.buildinfo
 
 %install
 mkdir -p %{buildroot}%{_sysconfdir}/%{name}.d
@@ -408,7 +485,6 @@ exit 0
 %dir %{_sysconfdir}/%{name}.d
 %dir /run/%{name}
 %doc ChangeLog LICENSE README
-%doc uwsgi-wiki-doc-v%{wikiversion}.txt
 
 %files devel
 %{_includedir}/%{name}
@@ -416,20 +492,34 @@ exit 0
 %files -n python-uwsgidecorators
 %{python_sitelib}/uwsgidecorators.py*
 
+%files -n %{name}-doc
+%doc html/
+
 %files plugin-common
 %dir %{_libdir}/%{name}
 %{_libdir}/%{name}/cache_plugin.so
 %{_libdir}/%{name}/cgi_plugin.so
+%{_libdir}/%{name}/cheaper_busyness_plugin.so
+%{_libdir}/%{name}/clock_monotonic_plugin.so
+%{_libdir}/%{name}/clock_realtime_plugin.so
+%{_libdir}/%{name}/dumbloop_plugin.so
 %{_libdir}/%{name}/dummy_plugin.so
+%{_libdir}/%{name}/logfile_plugin.so
 %{_libdir}/%{name}/notfound_plugin.so
 %{_libdir}/%{name}/probeconnect_plugin.so
+%{_libdir}/%{name}/rawrouter_plugin.so
+%{_libdir}/%{name}/router_access_plugin.so
 %{_libdir}/%{name}/router_basicauth_plugin.so
+%{_libdir}/%{name}/router_cache_plugin.so
+%{_libdir}/%{name}/router_http_plugin.so
 %{_libdir}/%{name}/router_redirect_plugin.so
+%{_libdir}/%{name}/router_rewrite_plugin.so
 %{_libdir}/%{name}/router_uwsgi_plugin.so
 %{_libdir}/%{name}/rpc_plugin.so
 %{_libdir}/%{name}/signal_plugin.so
 %{_libdir}/%{name}/spooler_plugin.so
 %{_libdir}/%{name}/symcall_plugin.so
+%{_libdir}/%{name}/systemd_logger_plugin.so
 %{_libdir}/%{name}/ugreen_plugin.so
 %{_libdir}/%{name}/zergpool_plugin.so
 
@@ -511,11 +601,36 @@ exit 0
 %files plugin-redislog
 %{_libdir}/%{name}/redislog_plugin.so
  
+%files -n %{name}-plugin-alarm-curl
+%{_libdir}/%{name}/alarm_curl_plugin.so
+
+%files -n %{name}-plugin-alarm-xmpp
+%{_libdir}/%{name}/alarm_xmpp_plugin.so
+
+%files -n %{name}-plugin-emperor-mongodb
+%{_libdir}/%{name}/emperor_mongodb_plugin.so
+
+%files -n %{name}-plugin-emperor-pg
+%{_libdir}/%{name}/emperor_pg_plugin.so
+
+%files -n %{name}-plugin-emperor-amqp
+%{_libdir}/%{name}/emperor_amqp_plugin.so
+
+%files -n %{name}-plugin-mongodblog
+%{_libdir}/%{name}/mongodblog_plugin.so
+
+%files -n %{name}-plugin-stats-pusher-mongodb
+%{_libdir}/%{name}/stats_pusher_mongodb_plugin.so
+
 %files -n mod_uwsgi
 %{_sysconfdir}/httpd/conf.d/10-uwsgi.conf
 %{_libdir}/httpd/modules/mod_uwsgi.so
 
 %changelog
+* Tue Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.5-1
+- Update to latest stable release from upstream
+- Add doc subpackage with the complete documentation
+
 * Mon Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.2.6-13
 - Build mod_uwsgi
 
