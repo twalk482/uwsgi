@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        8%{?dist}
+Release:        9%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -19,7 +19,7 @@ BuildRequires:  curl,  python2-devel, libxml2-devel, libuuid-devel, jansson-deve
 BuildRequires:  libyaml-devel, perl-devel, ruby-devel, perl-ExtUtils-Embed
 BuildRequires:  python3-devel, python-greenlet-devel, lua-devel, ruby, pcre-devel
 BuildRequires:  php-devel, php-embedded, libedit-devel, openssl-devel
-BuildRequires:  bzip2-devel, gmp-devel, systemd-units
+BuildRequires:  bzip2-devel, gmp-devel, systemd-units, libcap-devel
 
 Requires(pre):    shadow-utils
 Requires(post):   systemd-units
@@ -313,6 +313,9 @@ exit 0
 
 
 %changelog
+* Fri Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.2.6-9
+- Build with support for POSIX capabilities
+
 * Fri Feb 15 2013 Fedora Release Engineering <rel-eng@lists.fedoraproject.org> - 1.2.6-8
 - Rebuilt for https://fedoraproject.org/wiki/Fedora_19_Mass_Rebuild
 
