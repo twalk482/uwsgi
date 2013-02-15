@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        10%{?dist}
+Release:        11%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -43,7 +43,7 @@ core.
 %package -n %{name}-devel
 Summary:  uWSGI - Development header files and libraries
 Group:    Development/Libraries
-Requires: %{name}
+Requires: %{name} = %{version}-%{release}
 
 %description -n %{name}-devel
 This package contains the development header files and libraries
@@ -52,7 +52,7 @@ for uWSGI extensions
 %package -n %{name}-plugin-common
 Summary:  uWSGI - Common plugins for uWSGI
 Group:    System Environment/Daemons
-Requires: %{name}
+Requires: %{name} = %{version}-%{release}
 
 %description -n %{name}-plugin-common
 This package contains the most common plugins used with uWSGI. The
@@ -61,7 +61,7 @@ plugins included in this package are: cache, CGI, RPC, uGreen
 %package -n %{name}-plugin-rack
 Summary:  uWSGI - Ruby rack plugin
 Group:    System Environment/Daemons
-Requires: rubygem-rack, %{name}-plugin-common
+Requires: rubygem-rack, %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-rack
 This package contains the rack plugin for uWSGI
@@ -69,7 +69,7 @@ This package contains the rack plugin for uWSGI
 %package -n %{name}-plugin-psgi
 Summary:  uWSGI - Plugin for PSGI support
 Group:    System Environment/Daemons
-Requires: perl-PSGI, %{name}-plugin-common
+Requires: perl-PSGI, %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-psgi
 This package contains the PSGI plugin for uWSGI
@@ -77,7 +77,7 @@ This package contains the PSGI plugin for uWSGI
 %package -n %{name}-plugin-python
 Summary:  uWSGI - Plugin for Python support
 Group:    System Environment/Daemons
-Requires: python, %{name}-plugin-common
+Requires: python, %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-python
 This package contains the python plugin for uWSGI
@@ -85,7 +85,7 @@ This package contains the python plugin for uWSGI
 %package -n %{name}-plugin-nagios
 Summary:  uWSGI - Plugin for Nagios support
 Group:    System Environment/Daemons
-Requires: %{name}-plugin-common
+Requires: %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-nagios
 This package contains the nagios plugin for uWSGI
@@ -93,7 +93,7 @@ This package contains the nagios plugin for uWSGI
 %package -n %{name}-plugin-fastrouter
 Summary:  uWSGI - Plugin for FastRouter support
 Group:    System Environment/Daemons
-Requires: %{name}-plugin-common
+Requires: %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-fastrouter
 This package contains the fastrouter (proxy) plugin for uWSGI
@@ -101,7 +101,7 @@ This package contains the fastrouter (proxy) plugin for uWSGI
 %package -n %{name}-plugin-admin
 Summary:  uWSGI - Plugin for Admin support
 Group:    System Environment/Daemons   
-Requires: %{name}-plugin-common
+Requires: %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-admin
 This package contains the admin plugin for uWSGI
@@ -109,7 +109,7 @@ This package contains the admin plugin for uWSGI
 %package -n %{name}-plugin-python3
 Summary:  uWSGI - Plugin for Python 3.2 support
 Group:    System Environment/Daemons   
-Requires: python3, %{name}-plugin-common
+Requires: python3, %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-python3
 This package contains the Python 3.2 plugin for uWSGI
@@ -117,7 +117,7 @@ This package contains the Python 3.2 plugin for uWSGI
 %package -n %{name}-plugin-ruby
 Summary:  uWSGI - Plugin for Ruby support
 Group:    System Environment/Daemons   
-Requires: ruby, %{name}-plugin-common
+Requires: ruby, %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-ruby
 This package contains the Ruby 1.9 plugin for uWSGI
@@ -125,7 +125,7 @@ This package contains the Ruby 1.9 plugin for uWSGI
 %package -n %{name}-plugin-greenlet
 Summary:  uWSGI - Plugin for Python Greenlet support
 Group:    System Environment/Daemons   
-Requires: python-greenlet, %{name}-plugin-common
+Requires: python-greenlet, %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-greenlet
 This package contains the python greenlet plugin for uWSGI
@@ -133,7 +133,7 @@ This package contains the python greenlet plugin for uWSGI
 %package -n %{name}-plugin-lua
 Summary:  uWSGI - Plugin for LUA support
 Group:    System Environment/Daemons   
-Requires: lua, %{name}-plugin-common
+Requires: lua, %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-lua
 This package contains the lua plugin for uWSGI
@@ -141,7 +141,7 @@ This package contains the lua plugin for uWSGI
 %package -n %{name}-plugin-php
 Summary:  uWSGI - Plugin for PHP support
 Group:    System Environment/Daemons
-Requires: %{name}-plugin-common
+Requires: %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-php
 This package contains the PHP plugin for uWSGI
@@ -149,7 +149,7 @@ This package contains the PHP plugin for uWSGI
 %package -n %{name}-plugin-carbon
 Summary:  uWSGI - Plugin for Carbon/Graphite support
 Group:    System Environment/Daemons
-Requires: %{name}-plugin-common
+Requires: %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-carbon
 This package contains the Carbon plugin for uWSGI (to use in graphite)
@@ -157,7 +157,7 @@ This package contains the Carbon plugin for uWSGI (to use in graphite)
 %package -n %{name}-plugin-rrdtool
 Summary:  uWSGI - Plugin for RRDTool support
 Group:    System Environment/Daemons
-Requires: rrdtool, %{name}-plugin-common
+Requires: rrdtool, %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-rrdtool
 This package contains the RRD Tool plugin for uWSGI
@@ -165,7 +165,7 @@ This package contains the RRD Tool plugin for uWSGI
 %package -n %{name}-plugin-rsyslog
 Summary:  uWSGI - Plugin for rsyslog support
 Group:    System Environment/Daemons
-Requires: %{name}-plugin-common
+Requires: %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-rsyslog
 This package contains the rsyslog plugin for uWSGI
@@ -173,7 +173,7 @@ This package contains the rsyslog plugin for uWSGI
 %package -n %{name}-plugin-syslog
 Summary:  uWSGI - Plugin for syslog support
 Group:    System Environment/Daemons
-Requires: %{name}-plugin-common
+Requires: %{name}-plugin-common = %{version}-%{release}
 
 %description -n %{name}-plugin-syslog
 This package contains the syslog plugin for uWSGI
@@ -313,6 +313,10 @@ exit 0
 
 
 %changelog
+* Mon Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.2.6-11
+- Use versioned dependencies from the devel subpackage on the main package and
+  from plugins on the plugins-common subpackage
+
 * Mon Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.2.6-10
 - Mark uwsgi.ini as a config file
 
