@@ -2,12 +2,12 @@
 %global uwsgi_docs_rev 266643bffc2bee1461d3b5848a292b13b9ea998a
 # exclude plugins for which we lack all necessary dependencies, which are
 # unusable or just meant as examples
-%global blacklist_plugins  example mono pypy stackless cheaper_backlog2 cplusplus pyuwsgi alarm_speech go
+%global blacklist_plugins  example mono pypy stackless cheaper_backlog2 cplusplus pyuwsgi alarm_speech go systemd_logger fiber
 %global embed_plugins      echo ping corerouter http
 
 Name:           uwsgi
 Version:        1.4.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -15,27 +15,29 @@ URL:            http://projects.unbit.it/uwsgi
 Source0:        http://projects.unbit.it/downloads/%{name}-%{version}.tar.gz
 Source1:        fedora.ini.in
 Source2:        https://github.com/unbit/uwsgi-docs/archive/%{uwsgi_docs_rev}.zip
-Source3:        uwsgi.service
 Source4:        emperor.ini
 Source5:        uwsgi.conf
+Source6:        uwsgi.logrotate
+Source7:        uwsgi.init
 Patch0:         uwsgi_trick_chroot_rpmbuild.patch
 Patch1:         uwsgi_fix_rpath.patch
 Patch2:         uwsgi_fix_jwsgi_include_lib_paths.patch
 Patch3:         uwsgi_fix_boost_thread.patch
-BuildRequires:  curl,  python2-devel, libxml2-devel, libuuid-devel, jansson-devel
+Patch4:         uwsgi_fix_older_libcurl.patch
+BuildRequires:  curl,  python2-devel, libxml2-devel, libuuid-devel
 BuildRequires:  libyaml-devel, perl-devel, ruby-devel, perl-ExtUtils-Embed
-BuildRequires:  python3-devel, python-greenlet-devel, lua-devel, ruby, pcre-devel
+BuildRequires:  python-greenlet-devel, lua-devel, ruby, pcre-devel
 BuildRequires:  php-devel, php-embedded, libedit-devel, openssl-devel
-BuildRequires:  bzip2-devel, gmp-devel, systemd-units, libcap-devel, erlang
+BuildRequires:  bzip2-devel, gmp-devel, libcap-devel, erlang
 BuildRequires:  java-devel, pam-devel, postgresql-devel, zeromq-devel
 BuildRequires:  sqlite-devel, openldap-devel, httpd-devel, libcurl-devel
-BuildRequires:  gloox-devel, mongodb-devel, libmongo-client-devel, boost-devel
-BuildRequires:  tcp_wrappers-devel, systemd-devel, python-sphinx
+BuildRequires:  gloox-devel, mongodb-devel, boost-devel
+BuildRequires:  tcp_wrappers-devel, python-sphinx
 
-Requires(pre):    shadow-utils
-Requires(post):   systemd-units
-Requires(preun):  systemd-units
-Requires(postun): systemd-units
+Requires(post):   chkconfig
+Requires(postun): initscripts
+Requires(preun):  chkconfig
+Requires(preun):  initscripts
 
 %description
 uWSGI is a fast (pure C), self-healing, developer/sysadmin-friendly
@@ -136,14 +138,6 @@ Requires: %{name}-plugin-common = %{version}-%{release}
 %description plugin-admin
 This package contains the admin plugin for uWSGI
 
-%package plugin-python3
-Summary:  uWSGI - Plugin for Python 3.2 support
-Group:    System Environment/Daemons   
-Requires: python3, %{name}-plugin-common = %{version}-%{release}
-
-%description plugin-python3
-This package contains the Python 3.2 plugin for uWSGI
-
 %package plugin-ruby
 Summary:  uWSGI - Plugin for Ruby support
 Group:    System Environment/Daemons   
@@ -215,14 +209,6 @@ Requires: %{name}-plugin-common = %{version}-%{release}
 
 %description plugin-erlang
 This package contains the Erlang plugin for uWSGI
-
-%package plugin-fiber
-Summary:  uWSGI - Plugin for Ruby Fibers support
-Group:    System Environment/Daemons
-Requires: %{name}-plugin-ruby = %{version}-%{release}, %{name}-plugin-common = %{version}-%{release}
-
-%description plugin-fiber
-This package contains the Ruby Fibers plugin for uWSGI
 
 %package plugin-gevent
 Summary:  uWSGI - Plugin for Python Gevent support
@@ -394,15 +380,17 @@ END {
     print "plugin_dir = %{_libdir}/%{name}"
 }
 ' >> buildconf/fedora.ini
-cp -p %{SOURCE3} %{name}.service
 cp -p %{SOURCE4} %{name}.ini
 %patch0 -p1
 %patch1 -p1
 %patch2 -p1
 %patch3 -p1
+%patch4 -p1
 pushd uwsgi-docs-%{uwsgi_docs_rev}
 # remove empty files
 find . -name '*.rst' -and -size 0 -exec rm {} \+
+# remove languages unknown to sphinx which otherwise cause build failures
+find . -name '*.rst' -exec sed -i 's|code-block:: .*$|code-block:: none|' {} \+
 popd
 
 %build
@@ -413,7 +401,6 @@ export UWSGICONFIG_LUAINC="%{_includedir}"
 export UWSGICONFIG_LUALIBPATH="%{_libdir}"
 export CFLAGS="%{optflags} -Wno-unused-but-set-variable"
 python uwsgiconfig.py --build fedora.ini
-python3 uwsgiconfig.py --plugin plugins/python fedora python32
 pushd apache2
 apxs -c mod_uwsgi.c
 popd
@@ -427,7 +414,7 @@ mkdir -p %{buildroot}%{_unitdir}
 mkdir -p %{buildroot}%{_sbindir}
 mkdir -p %{buildroot}%{_includedir}/%{name}
 mkdir -p %{buildroot}%{_libdir}/%{name}
-mkdir -p %{buildroot}/run/%{name}
+mkdir -p %{buildroot}%{_localstatedir}/run/%{name}
 %{__install} -p -m 0755 %{name} %{buildroot}%{_sbindir}
 %{__install} -D -p -m 0644 uwsgidecorators.py %{buildroot}%{python_sitelib}/uwsgidecorators.py
 %{__install} -p -m 0644 *.h %{buildroot}%{_includedir}/%{name}
@@ -435,55 +422,39 @@ mkdir -p %{buildroot}/run/%{name}
 %{__install} -D -p -m 0755 apache2/.libs/mod_uwsgi.so %{buildroot}%{_libdir}/httpd/modules/mod_uwsgi.so
 %{__install} -D -p -m 0644 %{SOURCE5} %{buildroot}%{_sysconfdir}/httpd/conf.d/10-uwsgi.conf
 %{__install} -p -m 0644 %{name}.ini %{buildroot}%{_sysconfdir}/%{name}.ini
-%{__install} -p -m 0644 %{name}.service %{buildroot}%{_unitdir}/%{name}.service
+%{__install} -D -p -m 0644 %{SOURCE6} %{buildroot}%{_sysconfdir}/logrotate.d/%{name}
+%{__install} -D -p -m 0755 %{SOURCE7} %{buildroot}%{_initddir}/%{name}
 
 
 %pre
 getent group uwsgi >/dev/null || groupadd -r uwsgi
 getent passwd uwsgi >/dev/null || \
-    useradd -r -g uwsgi -d /run/uwsgi -s /sbin/nologin \
+    useradd -r -g uwsgi -d %{_localstatedir}/run/uwsgi -s /sbin/nologin \
     -c "uWSGI daemon user" uwsgi
 exit 0
 
 %post
-%if 0%{?systemd_post:1}
-    %systemd_post uwsgi.service
-%else
-    if [ $1 -eq 1 ] ; then 
-        # Initial installation 
-        /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    fi
-%endif
+/sbin/chkconfig --add %{name}
 
 %preun
-%if 0%{?systemd_preun:1}
-    %systemd_preun uwsgi.service
-%else
-    if [ $1 -eq 0 ] ; then
-        # Package removal, not upgrade
-        /bin/systemctl --no-reload disable uwsgi.service > /dev/null 2>&1 || :
-        /bin/systemctl stop uwsgi.service > /dev/null 2>&1 || :
-    fi
-%endif
+if [ "$1" -eq 0 ]; then
+    /sbin/service %{name} stop >/dev/null 2>&1
+    /sbin/chkconfig --del %{name}
+fi
 
 %postun
-%if 0%{?systemd_postun:1}
-    %systemd_postun uwsgi.service
-%else
-    /bin/systemctl daemon-reload >/dev/null 2>&1 || :
-    if [ $1 -ge 1 ] ; then
-        # Package upgrade, not uninstall
-        /bin/systemctl try-restart uwsgi.service >/dev/null 2>&1 || :
-    fi
-%endif
+if [ "$1" -ge 1 ]; then
+    /sbin/service %{name} condrestart >/dev/null 2>&1 || :
+fi
 
 
 %files 
 %{_sbindir}/%{name}
 %config(noreplace) %{_sysconfdir}/%{name}.ini
-%{_unitdir}/%{name}.service
 %dir %{_sysconfdir}/%{name}.d
-%dir /run/%{name}
+%{_initddir}/%{name}
+%config(noreplace) %{_sysconfdir}/logrotate.d/%{name}
+%dir %{_localstatedir}/run/%{name}
 %doc ChangeLog LICENSE README
 
 %files devel
@@ -519,7 +490,6 @@ exit 0
 %{_libdir}/%{name}/signal_plugin.so
 %{_libdir}/%{name}/spooler_plugin.so
 %{_libdir}/%{name}/symcall_plugin.so
-%{_libdir}/%{name}/systemd_logger_plugin.so
 %{_libdir}/%{name}/ugreen_plugin.so
 %{_libdir}/%{name}/zergpool_plugin.so
 
@@ -540,9 +510,6 @@ exit 0
 
 %files plugin-admin
 %{_libdir}/%{name}/admin_plugin.so
-
-%files plugin-python3
-%{_libdir}/%{name}/python32_plugin.so
 
 %files plugin-ruby
 %{_libdir}/%{name}/ruby19_plugin.so
@@ -570,9 +537,6 @@ exit 0
 
 %files plugin-erlang
 %{_libdir}/%{name}/erlang_plugin.so
-
-%files plugin-fiber
-%{_libdir}/%{name}/fiber_plugin.so
 
 %files plugin-gevent
 %{_libdir}/%{name}/gevent_plugin.so
@@ -627,6 +591,9 @@ exit 0
 %{_libdir}/httpd/modules/mod_uwsgi.so
 
 %changelog
+* Tue Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.5-2
+- Adapted for EPEL-6
+
 * Tue Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.5-1
 - Update to latest stable release from upstream
 - Add doc subpackage with the complete documentation

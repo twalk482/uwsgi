@@ -2,8 +2,6 @@
 inherit = base
 ; enable XML configuration format
 xml = true
-; enable JSON configuration format
-json = true
 ; configuration from SQlite database
 sqlite3 = true
 ; configuration via LDAP
