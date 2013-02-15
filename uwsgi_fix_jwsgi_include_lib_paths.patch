@@ -1,0 +1,52 @@
+Index: uwsgi-1.2.6/plugins/jwsgi/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.2.6.orig/plugins/jwsgi/uwsgiplugin.py
++++ uwsgi-1.2.6/plugins/jwsgi/uwsgiplugin.py
+@@ -10,6 +10,25 @@ NAME='jwsgi'
+ JVM_INCPATH = "/usr/lib/jvm/java-6-sun-1.6.0.15/include/ -I/usr/lib/jvm/java-6-sun-1.6.0.15/include/linux"
+ JVM_LIBPATH = "/usr/lib/jvm/java-6-sun-1.6.0.15/jre/lib/i386/server/"
+ 
++try:
++    JVM_INCPATH = os.environ['UWSGICONFIG_JVM_INCPATH']
++except:
++    pass
++
++try:
++    JVM_LIBPATH = os.environ['UWSGICONFIG_JVM_LIBPATH']
++except:
++    pass
++
++try:
++    JVM_INCPATH = os.environ['UWSGICONFIG_JVM_INCPATH']
++except:
++    pass
++
++try:
++    JVM_LIBPATH = os.environ['UWSGICONFIG_JVM_LIBPATH']
++except:
++    pass
+ 
+ CFLAGS = ['-I' + JVM_INCPATH]
+ LDFLAGS = ['-L' + JVM_LIBPATH]
+Index: uwsgi-1.2.6/plugins/pyerl/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.2.6.orig/plugins/pyerl/uwsgiplugin.py
++++ uwsgi-1.2.6/plugins/pyerl/uwsgiplugin.py
+@@ -1,8 +1,14 @@
+ from distutils import sysconfig
+ 
+ NAME='pyerl'
+-CFLAGS = ['-I' + sysconfig.get_python_inc(), '-I' + sysconfig.get_python_inc(plat_specific=True)]
+-LDFLAGS = []
+-LIBS = []
++
++ERLANGPATH = os.environ.get('UWSGICONFIG_ERLANGPATH', 'erl')
++
++includedir = os.popen(ERLANGPATH + " -noshell -noinput -eval \"io:format('~s~n', [code:lib_dir(erl_interface, include)])\" -s erlang halt").read().rstrip()
++libpath = os.popen(ERLANGPATH + " -noshell -noinput -eval \"io:format('~s~n', [code:lib_dir(erl_interface, lib)])\" -s erlang halt").read().rstrip()
++
++CFLAGS = ['-I' + sysconfig.get_python_inc(), '-I' + sysconfig.get_python_inc(plat_specific=True), '-I' + includedir]
++LDFLAGS = ['-L' + libpath]
++LIBS = ['-lei']
+ 
+ GCC_LIST = ['pyerl']

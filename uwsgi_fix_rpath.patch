@@ -1,7 +1,8 @@
-diff -r 655aa0eeb778 plugins/php/uwsgiplugin.py
---- a/plugins/php/uwsgiplugin.py	Tue Jun 26 07:59:35 2012 +0200
-+++ b/plugins/php/uwsgiplugin.py	Tue Jun 26 23:47:16 2012 -0700
-@@ -22,7 +22,6 @@
+Index: uwsgi-1.2.6/plugins/php/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.2.6.orig/plugins/php/uwsgiplugin.py
++++ uwsgi-1.2.6/plugins/php/uwsgiplugin.py
+@@ -22,7 +22,6 @@ CFLAGS = [os.popen(PHPPATH + ' --include
  LDFLAGS = os.popen(PHPPATH + ' --ldflags').read().rstrip().split()
  if ld_run_path:
      LDFLAGS.append('-L%s' % ld_run_path)
@@ -9,10 +10,11 @@ diff -r 655aa0eeb778 plugins/php/uwsgiplugin.py
  
  LIBS = [os.popen(PHPPATH + ' --libs').read().rstrip(), '-lphp5']
  
-diff -r 655aa0eeb778 plugins/python/uwsgiplugin.py
---- a/plugins/python/uwsgiplugin.py	Tue Jun 26 07:59:35 2012 +0200
-+++ b/plugins/python/uwsgiplugin.py	Tue Jun 26 23:47:16 2012 -0700
-@@ -20,10 +20,8 @@
+Index: uwsgi-1.2.6/plugins/python/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.2.6.orig/plugins/python/uwsgiplugin.py
++++ uwsgi-1.2.6/plugins/python/uwsgiplugin.py
+@@ -20,10 +20,8 @@ if not 'UWSGI_PYTHON_NOLIB' in os.enviro
      else:
          try:
              LDFLAGS.append("-L%s" % sysconfig.get_config_var('LIBDIR'))
@@ -23,23 +25,49 @@ diff -r 655aa0eeb778 plugins/python/uwsgiplugin.py
  
  
      version = sysconfig.get_config_var('VERSION')
-diff -r 655aa0eeb778 plugins/rack/uwsgiplugin.py
---- a/plugins/rack/uwsgiplugin.py	Tue Jun 26 07:59:35 2012 +0200
-+++ b/plugins/rack/uwsgiplugin.py	Tue Jun 26 23:47:16 2012 -0700
-@@ -38,6 +38,5 @@
+Index: uwsgi-1.2.6/plugins/rack/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.2.6.orig/plugins/rack/uwsgiplugin.py
++++ uwsgi-1.2.6/plugins/rack/uwsgiplugin.py
+@@ -38,6 +38,5 @@ LDFLAGS = os.popen(RUBYPATH + " -e \"req
  
  libpath = os.popen(RUBYPATH + " -e \"require 'rbconfig';print %s::CONFIG['libdir']\"" % rbconfig).read().rstrip()
  LDFLAGS.append('-L' + libpath )
 -os.environ['LD_RUN_PATH'] = libpath
  LIBS = os.popen(RUBYPATH + " -e \"require 'rbconfig';print '-l' + %s::CONFIG['RUBY_SO_NAME']\"" % rbconfig).read().rstrip().split()
  
-diff -r 655aa0eeb778 plugins/ruby19/uwsgiplugin.py
---- a/plugins/ruby19/uwsgiplugin.py	Tue Jun 26 07:59:35 2012 +0200
-+++ b/plugins/ruby19/uwsgiplugin.py	Tue Jun 26 23:47:16 2012 -0700
-@@ -40,6 +40,5 @@
+Index: uwsgi-1.2.6/plugins/ruby19/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.2.6.orig/plugins/ruby19/uwsgiplugin.py
++++ uwsgi-1.2.6/plugins/ruby19/uwsgiplugin.py
+@@ -40,6 +40,5 @@ LDFLAGS = os.popen(RUBYPATH + " -e \"req
  
  libpath = os.popen(RUBYPATH + " -e \"require 'rbconfig';print %s::CONFIG['libdir']\"" % rbconfig).read().rstrip()
  LDFLAGS.append('-L' + libpath )
 -os.environ['LD_RUN_PATH'] = libpath
  LIBS = os.popen(RUBYPATH + " -e \"require 'rbconfig';print '-l' + %s::CONFIG['RUBY_SO_NAME']\"" % rbconfig).read().rstrip().split()
  
+Index: uwsgi-1.2.6/plugins/jvm/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.2.6.orig/plugins/jvm/uwsgiplugin.py
++++ uwsgi-1.2.6/plugins/jvm/uwsgiplugin.py
+@@ -41,7 +41,3 @@ LDFLAGS = ['-L' + JVM_LIBPATH]
+ LIBS = ['-ljvm']
+ GCC_LIST = ['jvm_plugin']
+ 
+-if os.environ.has_key('LD_RUN_PATH'):
+-	os.environ['LD_RUN_PATH'] += ':' + JVM_LIBPATH
+-else:
+-	os.environ['LD_RUN_PATH'] = JVM_LIBPATH
+Index: uwsgi-1.2.6/plugins/jwsgi/uwsgiplugin.py
+===================================================================
+--- uwsgi-1.2.6.orig/plugins/jwsgi/uwsgiplugin.py
++++ uwsgi-1.2.6/plugins/jwsgi/uwsgiplugin.py
+@@ -16,7 +16,3 @@ LDFLAGS = ['-L' + JVM_LIBPATH]
+ LIBS = ['-ljvm']
+ GCC_LIST = ['jwsgi_plugin']
+ 
+-if os.environ.has_key('LD_RUN_PATH'):
+-	os.environ['LD_RUN_PATH'] += ':' + JVM_LIBPATH
+-else:
+-	os.environ['LD_RUN_PATH'] = JVM_LIBPATH

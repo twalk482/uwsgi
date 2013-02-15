@@ -1,0 +1,20 @@
+[uwsgi]
+inherit = base
+; enable XML configuration format
+xml = true
+; enable JSON configuration format
+json = true
+; configuration from SQlite database
+sqlite3 = true
+; configuration via LDAP
+ldap = true
+; enable SSL support
+ssl = true
+; enable PCRE support
+pcre = true
+; use libyaml for parsing YAML configuration
+yaml_implementation = libyaml
+; enable alarm subystem
+alarm = true
+; enable ZeroMQ transport layer
+zeromq = true
