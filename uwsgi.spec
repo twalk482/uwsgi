@@ -2,7 +2,7 @@
 
 Name:           uwsgi
 Version:        1.2.6
-Release:        9%{?dist}
+Release:        10%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -249,7 +249,7 @@ exit 0
 
 %files 
 %{_sbindir}/%{name}
-%{_sysconfdir}/%{name}.ini
+%config(noreplace) %{_sysconfdir}/%{name}.ini
 %{_unitdir}/%{name}.service
 %dir %{_sysconfdir}/%{name}.d
 %dir /run/%{name}
@@ -313,6 +313,9 @@ exit 0
 
 
 %changelog
+* Mon Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.2.6-10
+- Mark uwsgi.ini as a config file
+
 * Fri Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.2.6-9
 - Build with support for POSIX capabilities
 
