@@ -7,7 +7,7 @@
 
 Name:           uwsgi
 Version:        1.4.5
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -627,6 +627,10 @@ exit 0
 %{_libdir}/httpd/modules/mod_uwsgi.so
 
 %changelog
+* Mon Feb 18 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.5-2
+- Remove socket directive from the default configuration which caused an
+  unnecessary worker to be spawned that caused trouble with reloading
+
 * Tue Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.5-1
 - Update to latest stable release from upstream
 - Add doc subpackage with the complete documentation
