@@ -7,7 +7,7 @@
 
 Name:           uwsgi
 Version:        1.4.5
-Release:        2%{?dist}
+Release:        3%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -591,6 +591,12 @@ fi
 %{_libdir}/httpd/modules/mod_uwsgi.so
 
 %changelog
+* Mon Feb 18 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.5-3
+- Remove socket directive from the default configuration which caused an
+  unnecessary worker to be spawned that caused trouble with reloading
+- Fix log rotation by using the copytruncate method, an emperor cannot reopen
+  its logfile
+
 * Tue Feb 15 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.5-2
 - Adapted for EPEL-6
 
