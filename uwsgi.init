@@ -65,7 +65,7 @@ restart() {
 
 reload() {
     echo -n $"Reloading $prog: "
-    kill -HUP "$(head -1 "${pidfile}")"
+    killproc -p $pidfile $prog -HUP
     retval=$?
     echo
     return $retval
