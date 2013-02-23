@@ -6,8 +6,8 @@
 %global embed_plugins      echo ping corerouter http
 
 Name:           uwsgi
-Version:        1.4.5
-Release:        2%{?dist}
+Version:        1.4.6
+Release:        1%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -627,6 +627,9 @@ exit 0
 %{_libdir}/httpd/modules/mod_uwsgi.so
 
 %changelog
+* Sat Feb 23 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.6-1
+- Update to 1.4.6
+
 * Mon Feb 18 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.5-2
 - Remove socket directive from the default configuration which caused an
   unnecessary worker to be spawned that caused trouble with reloading

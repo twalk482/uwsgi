@@ -1,7 +1,7 @@
-Index: uwsgi-1.2.6/plugins/php/uwsgiplugin.py
+Index: uwsgi-1.4.6/plugins/php/uwsgiplugin.py
 ===================================================================
---- uwsgi-1.2.6.orig/plugins/php/uwsgiplugin.py
-+++ uwsgi-1.2.6/plugins/php/uwsgiplugin.py
+--- uwsgi-1.4.6.orig/plugins/php/uwsgiplugin.py
++++ uwsgi-1.4.6/plugins/php/uwsgiplugin.py
 @@ -22,7 +22,6 @@ CFLAGS = [os.popen(PHPPATH + ' --include
  LDFLAGS = os.popen(PHPPATH + ' --ldflags').read().rstrip().split()
  if ld_run_path:
@@ -10,11 +10,11 @@ Index: uwsgi-1.2.6/plugins/php/uwsgiplugin.py
  
  LIBS = [os.popen(PHPPATH + ' --libs').read().rstrip(), '-lphp5']
  
-Index: uwsgi-1.2.6/plugins/python/uwsgiplugin.py
+Index: uwsgi-1.4.6/plugins/python/uwsgiplugin.py
 ===================================================================
---- uwsgi-1.2.6.orig/plugins/python/uwsgiplugin.py
-+++ uwsgi-1.2.6/plugins/python/uwsgiplugin.py
-@@ -20,10 +20,8 @@ if not 'UWSGI_PYTHON_NOLIB' in os.enviro
+--- uwsgi-1.4.6.orig/plugins/python/uwsgiplugin.py
++++ uwsgi-1.4.6/plugins/python/uwsgiplugin.py
+@@ -45,10 +45,8 @@ if not 'UWSGI_PYTHON_NOLIB' in os.enviro
      else:
          try:
              LDFLAGS.append("-L%s" % sysconfig.get_config_var('LIBDIR'))
@@ -23,12 +23,12 @@ Index: uwsgi-1.2.6/plugins/python/uwsgiplugin.py
              LDFLAGS.append("-L%s/lib" % sysconfig.PREFIX)
 -            os.environ['LD_RUN_PATH'] = "%s/lib" % sysconfig.PREFIX
  
- 
-     version = sysconfig.get_config_var('VERSION')
-Index: uwsgi-1.2.6/plugins/rack/uwsgiplugin.py
+         LIBS.append('-lpython%s' % get_python_version())
+ else:
+Index: uwsgi-1.4.6/plugins/rack/uwsgiplugin.py
 ===================================================================
---- uwsgi-1.2.6.orig/plugins/rack/uwsgiplugin.py
-+++ uwsgi-1.2.6/plugins/rack/uwsgiplugin.py
+--- uwsgi-1.4.6.orig/plugins/rack/uwsgiplugin.py
++++ uwsgi-1.4.6/plugins/rack/uwsgiplugin.py
 @@ -38,6 +38,5 @@ LDFLAGS = os.popen(RUBYPATH + " -e \"req
  
  libpath = os.popen(RUBYPATH + " -e \"require 'rbconfig';print %s::CONFIG['libdir']\"" % rbconfig).read().rstrip()
@@ -36,10 +36,10 @@ Index: uwsgi-1.2.6/plugins/rack/uwsgiplugin.py
 -os.environ['LD_RUN_PATH'] = libpath
  LIBS = os.popen(RUBYPATH + " -e \"require 'rbconfig';print '-l' + %s::CONFIG['RUBY_SO_NAME']\"" % rbconfig).read().rstrip().split()
  
-Index: uwsgi-1.2.6/plugins/ruby19/uwsgiplugin.py
+Index: uwsgi-1.4.6/plugins/ruby19/uwsgiplugin.py
 ===================================================================
---- uwsgi-1.2.6.orig/plugins/ruby19/uwsgiplugin.py
-+++ uwsgi-1.2.6/plugins/ruby19/uwsgiplugin.py
+--- uwsgi-1.4.6.orig/plugins/ruby19/uwsgiplugin.py
++++ uwsgi-1.4.6/plugins/ruby19/uwsgiplugin.py
 @@ -40,6 +40,5 @@ LDFLAGS = os.popen(RUBYPATH + " -e \"req
  
  libpath = os.popen(RUBYPATH + " -e \"require 'rbconfig';print %s::CONFIG['libdir']\"" % rbconfig).read().rstrip()
@@ -47,10 +47,10 @@ Index: uwsgi-1.2.6/plugins/ruby19/uwsgiplugin.py
 -os.environ['LD_RUN_PATH'] = libpath
  LIBS = os.popen(RUBYPATH + " -e \"require 'rbconfig';print '-l' + %s::CONFIG['RUBY_SO_NAME']\"" % rbconfig).read().rstrip().split()
  
-Index: uwsgi-1.2.6/plugins/jvm/uwsgiplugin.py
+Index: uwsgi-1.4.6/plugins/jvm/uwsgiplugin.py
 ===================================================================
---- uwsgi-1.2.6.orig/plugins/jvm/uwsgiplugin.py
-+++ uwsgi-1.2.6/plugins/jvm/uwsgiplugin.py
+--- uwsgi-1.4.6.orig/plugins/jvm/uwsgiplugin.py
++++ uwsgi-1.4.6/plugins/jvm/uwsgiplugin.py
 @@ -41,7 +41,3 @@ LDFLAGS = ['-L' + JVM_LIBPATH]
  LIBS = ['-ljvm']
  GCC_LIST = ['jvm_plugin']
@@ -59,10 +59,10 @@ Index: uwsgi-1.2.6/plugins/jvm/uwsgiplugin.py
 -	os.environ['LD_RUN_PATH'] += ':' + JVM_LIBPATH
 -else:
 -	os.environ['LD_RUN_PATH'] = JVM_LIBPATH
-Index: uwsgi-1.2.6/plugins/jwsgi/uwsgiplugin.py
+Index: uwsgi-1.4.6/plugins/jwsgi/uwsgiplugin.py
 ===================================================================
---- uwsgi-1.2.6.orig/plugins/jwsgi/uwsgiplugin.py
-+++ uwsgi-1.2.6/plugins/jwsgi/uwsgiplugin.py
+--- uwsgi-1.4.6.orig/plugins/jwsgi/uwsgiplugin.py
++++ uwsgi-1.4.6/plugins/jwsgi/uwsgiplugin.py
 @@ -16,7 +16,3 @@ LDFLAGS = ['-L' + JVM_LIBPATH]
  LIBS = ['-ljvm']
  GCC_LIST = ['jwsgi_plugin']
