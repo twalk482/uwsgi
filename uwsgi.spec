@@ -75,13 +75,13 @@ Summary:  uWSGI - Common plugins for uWSGI
 Group:    System Environment/Daemons
 Requires: %{name} = %{version}-%{release}
 
-%package -n %{name}-doc
+%package doc
 Summary:  uWSGI - Documentation
 Group:    Documentation
 Requires: %{name} = %{version}-%{release}
 BuildArch: noarch
 
-%description -n %{name}-doc
+%description doc
 This package contains the documentation for uWSGI
 
 %description plugin-common
@@ -298,60 +298,60 @@ Requires: %{name}-plugin-common = %{version}-%{release}
 %description plugin-redislog
 This package contains the Redis plugin for uWSGI
 
-%package -n %{name}-plugin-alarm-curl
+%package plugin-alarm-curl
 Summary:  uWSGI - Plugin for passing alarm messages via curl URLs
 Group:    System Environment/Daemons
 Requires: %{name}-plugin-common = %{version}-%{release}
 
-%description -n %{name}-plugin-alarm-curl
+%description plugin-alarm-curl
 This package contains the alarm_curl plugin for uWSGI
 
-%package -n %{name}-plugin-alarm-xmpp
+%package plugin-alarm-xmpp
 Summary:  uWSGI - Plugin for passing alarm messages via XMPP
 Group:    System Environment/Daemons
 Requires: %{name}-plugin-common = %{version}-%{release}
 
-%description -n %{name}-plugin-alarm-xmpp
+%description plugin-alarm-xmpp
 This package contains the alarm_xmpp plugin for uWSGI
 
-%package -n %{name}-plugin-emperor-mongodb
+%package plugin-emperor-mongodb
 Summary:  uWSGI - Plugin for reading emperor configurations from MongoDB
 Group:    System Environment/Daemons
 Requires: %{name}-plugin-common = %{version}-%{release}
 
-%description -n %{name}-plugin-emperor-mongodb
+%description plugin-emperor-mongodb
 This package contains the emperor_mongodb plugin
 
-%package -n %{name}-plugin-emperor-pg
+%package plugin-emperor-pg
 Summary:  uWSGI - Plugin for reading emperor configurations from PostgreSQL
 Group:    System Environment/Daemons
 Requires: %{name}-plugin-common = %{version}-%{release}
 
-%description -n %{name}-plugin-emperor-pg
+%description plugin-emperor-pg
 This package contains the emperor_pg plugin
 
-%package -n %{name}-plugin-emperor-amqp
+%package plugin-emperor-amqp
 Summary:  uWSGI - Plugin for reading emperor configuration locations from AMQP
 Group:    System Environment/Daemons
 Requires: %{name}-plugin-common = %{version}-%{release}
 
-%description -n %{name}-plugin-emperor-amqp
+%description plugin-emperor-amqp
 This package contains the emperor_amqp plugin
 
-%package -n %{name}-plugin-mongodblog
+%package plugin-mongodblog
 Summary:  uWSGI - Plugin for logging to MongoDB
 Group:    System Environment/Daemons
 Requires: %{name}-plugin-common = %{version}-%{release}
 
-%description -n %{name}-plugin-mongodblog
+%description plugin-mongodblog
 This package contains the mongodblog plugin
 
-%package -n %{name}-plugin-stats-pusher-mongodb
+%package plugin-stats-pusher-mongodb
 Summary:  uWSGI - Plugin for push statistics to MongoDB
 Group:    System Environment/Daemons
 Requires: %{name}-plugin-common = %{version}-%{release}
 
-%description -n %{name}-plugin-stats-pusher-mongodb
+%description plugin-stats-pusher-mongodb
 This package contains the stats_pusher_mongodb plugin
 
 %package -n mod_uwsgi
@@ -492,7 +492,7 @@ exit 0
 %files -n python-uwsgidecorators
 %{python_sitelib}/uwsgidecorators.py*
 
-%files -n %{name}-doc
+%files doc
 %doc html/
 
 %files plugin-common
@@ -600,26 +600,26 @@ exit 0
 
 %files plugin-redislog
 %{_libdir}/%{name}/redislog_plugin.so
- 
-%files -n %{name}-plugin-alarm-curl
+
+%files plugin-alarm-curl
 %{_libdir}/%{name}/alarm_curl_plugin.so
 
-%files -n %{name}-plugin-alarm-xmpp
+%files plugin-alarm-xmpp
 %{_libdir}/%{name}/alarm_xmpp_plugin.so
 
-%files -n %{name}-plugin-emperor-mongodb
+%files plugin-emperor-mongodb
 %{_libdir}/%{name}/emperor_mongodb_plugin.so
 
-%files -n %{name}-plugin-emperor-pg
+%files plugin-emperor-pg
 %{_libdir}/%{name}/emperor_pg_plugin.so
 
-%files -n %{name}-plugin-emperor-amqp
+%files plugin-emperor-amqp
 %{_libdir}/%{name}/emperor_amqp_plugin.so
 
-%files -n %{name}-plugin-mongodblog
+%files plugin-mongodblog
 %{_libdir}/%{name}/mongodblog_plugin.so
 
-%files -n %{name}-plugin-stats-pusher-mongodb
+%files plugin-stats-pusher-mongodb
 %{_libdir}/%{name}/stats_pusher_mongodb_plugin.so
 
 %files -n mod_uwsgi
