@@ -7,7 +7,7 @@
 
 Name:           uwsgi
 Version:        1.4.6
-Release:        1%{?dist}
+Release:        2%{?dist}
 Summary:        Fast, self-healing, application container server
 Group:          System Environment/Daemons   
 License:        GPLv2
@@ -340,6 +340,14 @@ Requires: %{name}-plugin-common = %{version}-%{release}
 %description plugin-stats-pusher-mongodb
 This package contains the stats_pusher_mongodb plugin
 
+%package plugin-router-access
+Summary:  uWSGI - Plugin adding access control via TCP wrappers to the router
+Group:    System Environment/Daemons
+Requires: %{name}-plugin-common = %{version}-%{release}
+
+%description plugin-router-access
+This package contains the router_access plugin
+
 %package -n mod_uwsgi
 Summary:  uWSGI - Apache module
 Group:    System Environment/Libraries
@@ -586,11 +594,18 @@ fi
 %files plugin-stats-pusher-mongodb
 %{_libdir}/%{name}/stats_pusher_mongodb_plugin.so
 
+%files plugin-router-access
+%{_libdir}/%{name}/router_access_plugin.so
+
 %files -n mod_uwsgi
 %{_sysconfdir}/httpd/conf.d/10-uwsgi.conf
 %{_libdir}/httpd/modules/mod_uwsgi.so
 
 %changelog
+* Sun Feb 24 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.6-2
+- Split off the router_access plugin in its own subpackage since it depends on
+  libwrap
+
 * Sat Feb 23 2013 Guido Berhoerster <guido+fedora@berhoerster.name> - 1.4.6-1
 - Update to 1.4.6
 
